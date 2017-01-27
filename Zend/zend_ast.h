@@ -57,6 +57,8 @@ enum _zend_ast_kind {
 	ZEND_AST_NAME_LIST,
 	ZEND_AST_TRAIT_ADAPTATIONS,
 	ZEND_AST_USE,
+	ZEND_AST_TYPE_ARG_LIST,
+	ZEND_AST_TYPE_PARAM_LIST,
 
 	/* 0 child nodes */
 	ZEND_AST_MAGIC_CONST = 0 << ZEND_AST_NUM_CHILDREN_SHIFT,
@@ -173,6 +175,15 @@ typedef struct _zend_ast_zval {
 	zval val;
 } zend_ast_zval;
 
+/* structure for type arguments */
+typedef struct _zend_ast_type_ref {
+	zend_ast_kind kind;
+	zend_ast_attr attr;
+	uint32_t lineno;
+	zend_ast *type_name;
+	zend_ast *type_args;
+} zend_ast_type_ref;
+
 /* Separate structure for function and class declaration, as they need extra information. */
 typedef struct _zend_ast_decl {
 	zend_ast_kind kind;
@@ -198,6 +209,8 @@ ZEND_API zend_ast *zend_ast_create_decl(
 	zend_ast_kind kind, uint32_t flags, uint32_t start_lineno, zend_string *doc_comment,
 	zend_string *name, zend_ast *child0, zend_ast *child1, zend_ast *child2, zend_ast *child3
 );
+
+ZEND_API zend_ast *zend_ast_create_type_ref(zend_ast *type_name, zend_ast *type_args, zend_ast_attr attr);
 
 ZEND_API zend_ast *zend_ast_create_list(uint32_t init_children, zend_ast_kind kind, ...);
 ZEND_API zend_ast *zend_ast_list_add(zend_ast *list, zend_ast *op);

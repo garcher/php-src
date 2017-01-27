@@ -221,6 +221,8 @@ static YYSIZE_T zend_yytnamerr(char*, const char*);
 %token T_COALESCE        "?? (T_COALESCE)"
 %token T_POW             "** (T_POW)"
 %token T_POW_EQUAL       "**= (T_POW_EQUAL)"
+%token T_START_TARG      "< (T_START_TARG)"
+%token T_CLOSE_TARG      "> (T_CLOSE_TARG)"
 
 /* Token used to force a parse error from the lexer */
 %token T_ERROR
@@ -253,6 +255,8 @@ static YYSIZE_T zend_yytnamerr(char*, const char*);
 %type <ast> array_pair non_empty_array_pair_list array_pair_list possible_array_pair
 %type <ast> isset_variable type return_type type_expr
 %type <ast> identifier
+%type <ast> type_argument type_argument_list non_empty_type_argument_list
+%type <ast> type_parameter type_parameter_list non_empty_type_parameter_list
 
 %type <num> returns_ref function is_reference is_variadic variable_modifiers
 %type <num> method_modifiers non_empty_member_modifiers member_modifier
@@ -661,6 +665,36 @@ type:
 return_type:
 		/* empty */	{ $$ = NULL; }
 	|	':' type_expr	{ $$ = $2; }
+;
+
+type_argument_list:
+		/* empty */	{ $$ = NULL; }
+	|	T_START_TARG non_empty_type_argument_list T_CLOSE_TARG { $$ = $2; }
+;
+
+non_empty_type_argument_list:
+		type_argument { $$ = zend_ast_create_list(1, ZEND_AST_TYPE_ARG_LIST, $1); }
+	|	non_empty_type_argument_list ',' type_argument
+			{ $$ = zend_ast_list_add($1, $3); }
+;
+
+type_argument:
+		name type_argument_list { $$ = zend_ast_create_type_ref($1, $2, 0); }
+;
+
+type_parameter_list:
+		/* empty */	{ $$ = NULL; }
+	|	T_START_TARG non_empty_type_parameter_list T_CLOSE_TARG { $$ = $2; }
+;
+
+non_empty_type_parameter_list:
+		type_parameter { $$ = zend_ast_create_list(1, ZEND_AST_TYPE_PARAM_LIST, $1); }
+	|	non_empty_type_parameter_list ',' type_parameter
+			{ $$ = zend_ast_list_add($1, $3); }
+;
+
+type_parameter:
+		name { $$ = $1; }
 ;
 
 argument_list:
