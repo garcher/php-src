@@ -1066,7 +1066,7 @@ class_name:
 		T_STATIC
 			{ zval zv; ZVAL_INTERNED_STR(&zv, CG(known_strings)[ZEND_STR_STATIC]);
 			  $$ = zend_ast_create_zval_ex(&zv, ZEND_NAME_NOT_FQ); }
-	|	name { $$ = $1; }
+	|	name type_argument_list { $$ = zend_ast_create_type_ref($1, $2, 0); }
 ;
 
 class_name_reference:
