@@ -118,6 +118,9 @@ do {																			\
 
 #define IS_LABEL_START(c) (((c) >= 'a' && (c) <= 'z') || ((c) >= 'A' && (c) <= 'Z') || (c) == '_' || (c) >= 0x80)
 
+#define IS_LABEL_MID(c)   (((c) >= 'a' && (c) <= 'z') || ((c) >= 'A' && (c) <= 'Z') || (c) == '_' || (c) >= 0x7F || ((c) >='0' && (c) <= '9'))
+#define ZEND_IS_WHITESPACE(c) ((c) == ' ' || (c) == '\n' || (c) == '\r' || (c) == '\t')
+
 #define ZEND_IS_OCT(c)  ((c)>='0' && (c)<='7')
 #define ZEND_IS_HEX(c)  (((c)>='0' && (c)<='9') || ((c)>='a' && (c)<='f') || ((c)>='A' && (c)<='F'))
 
@@ -1565,12 +1568,83 @@ NEWLINE ("\r"|"\n"|"\r\n")
 	RETURN_TOKEN(T_LOGICAL_XOR);
 }
 
+<ST_IN_SCRIPTING>"<" {
+	if (SCNG(targ_count) > 0) {
+		SCNG(targ_count)--;
+
+		RETURN_TOKEN(T_START_TARG);
+	} else {
+
+		unsigned char *offset = YYCURSOR;
+		int skips  = 0;
+		int istarg = 0;
+
+		while (YYCURSOR < YYLIMIT) {
+			char c = *YYCURSOR++;
+
+			// This is enough for now, but it will need to scan for the entire pattern eventually.
+			if (IS_LABEL_MID(c) || ZEND_IS_WHITESPACE(c) || c == ',') {
+				continue;
+			}
+			if (c == '<') {
+				SCNG(targ_count)++;
+
+				skips++;
+				continue;
+			}
+			if (c == '>') {
+				SCNG(targ_count)++;
+
+				if (skips == 0) {
+					if (*YYCURSOR != '>') {
+						istarg = 1;
+					}
+
+					break;
+				} else {
+					skips--;
+					continue;
+				}
+			}
+
+			break;
+		}
+
+		YYCURSOR = offset;
+
+		if (istarg) {
+			RETURN_TOKEN(T_START_TARG);
+		} else {
+			SCNG(targ_count) = 0;
+			RETURN_TOKEN('<');
+		}
+	}
+}
+
+<ST_IN_SCRIPTING>">" {
+	if (SCNG(targ_count) > 0) {
+		SCNG(targ_count)--;
+
+		RETURN_TOKEN(T_CLOSE_TARG);
+	} else {
+		RETURN_TOKEN('>');
+	}
+}
+
 <ST_IN_SCRIPTING>"<<" {
 	RETURN_TOKEN(T_SL);
 }
 
 <ST_IN_SCRIPTING>">>" {
-	RETURN_TOKEN(T_SR);
+
+	if (SCNG(targ_count) > 0) {
+		SCNG(targ_count)--;
+		YYCURSOR--;
+
+		RETURN_TOKEN(T_CLOSE_TARG);
+	} else {
+		RETURN_TOKEN(T_SR);
+	}
 }
 
 <ST_IN_SCRIPTING>{TOKENS} {

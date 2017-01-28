@@ -273,6 +273,8 @@ struct _zend_php_scanner_globals {
 	zend_stack state_stack;
 	zend_ptr_stack heredoc_label_stack;
 
+	int targ_count;
+
 	/* original (unfiltered) script */
 	unsigned char *script_org;
 	size_t script_org_size;
