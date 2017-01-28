@@ -3892,6 +3892,8 @@ void zend_compile_static_call(znode *result, zend_ast *ast, uint32_t type) /* {{
 
 void zend_compile_class_decl(zend_ast *ast);
 
+void zend_compile_type_arguments(zend_ast *ast);
+
 void zend_compile_new(znode *result, zend_ast *ast) /* {{{ */
 {
 	zend_ast *class_ast = ast->child[0];
@@ -3912,6 +3914,14 @@ void zend_compile_new(znode *result, zend_ast *ast) /* {{{ */
 		class_node.op_type = opline->result_type;
 		class_node.u.op.var = opline->result.var;
 		opline->extended_value = get_next_op_number(CG(active_op_array));
+
+	} else if (class_ast->kind == ZEND_AST_TYPE_REF) {
+		if (zend_ast_get_type_ref(class_ast)->type_args) {
+			zend_compile_type_arguments(zend_ast_get_type_ref(class_ast)->type_args);
+		}
+
+		zend_compile_class_ref(&class_node, zend_ast_get_type_ref(class_ast)->type_name, ZEND_FETCH_CLASS_EXCEPTION);
+
 	} else {
 		zend_compile_class_ref_ex(&class_node, class_ast, ZEND_FETCH_CLASS_EXCEPTION);
 	}
@@ -5858,6 +5868,12 @@ void zend_compile_use_trait(zend_ast *ast) /* {{{ */
 			EMPTY_SWITCH_DEFAULT_CASE()
 		}
 	}
+}
+/* }}} */
+
+void zend_compile_type_arguments(zend_ast *ast) /* {{{ */
+{
+
 }
 /* }}} */
 

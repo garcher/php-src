@@ -33,6 +33,7 @@ enum _zend_ast_kind {
 	/* special nodes */
 	ZEND_AST_ZVAL = 1 << ZEND_AST_SPECIAL_SHIFT,
 	ZEND_AST_ZNODE,
+    ZEND_AST_TYPE_REF,
 
 	/* declaration nodes */
 	ZEND_AST_FUNC_DECL,
@@ -194,7 +195,7 @@ typedef struct _zend_ast_decl {
 	unsigned char *lex_pos;
 	zend_string *doc_comment;
 	zend_string *name;
-	zend_ast *child[4];
+	zend_ast *child[5];
 } zend_ast_decl;
 
 typedef void (*zend_ast_process_t)(zend_ast *ast);
