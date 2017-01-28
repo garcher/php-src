@@ -2761,7 +2761,7 @@ void zend_compile_prop(znode *result, zend_ast *ast, uint32_t type) /* {{{ */
 
 zend_op *zend_compile_static_prop_common(znode *result, zend_ast *ast, uint32_t type, int delayed) /* {{{ */
 {
-	zend_ast *class_ast = ast->child[0];
+	zend_ast *class_ast = zend_ast_get_class_name_ast(ast->child[0]);
 	zend_ast *prop_ast = ast->child[1];
 
 	znode class_node, prop_node;
@@ -3824,7 +3824,7 @@ static zend_bool zend_is_constructor(zend_string *name) /* {{{ */
 
 void zend_compile_static_call(znode *result, zend_ast *ast, uint32_t type) /* {{{ */
 {
-	zend_ast *class_ast = ast->child[0];
+	zend_ast *class_ast = zend_ast_get_class_name_ast(ast->child[0]);
 	zend_ast *method_ast = ast->child[1];
 	zend_ast *args_ast = ast->child[2];
 
@@ -3896,7 +3896,7 @@ void zend_compile_type_arguments(zend_ast *ast);
 
 void zend_compile_new(znode *result, zend_ast *ast) /* {{{ */
 {
-	zend_ast *class_ast = ast->child[0];
+	zend_ast *class_ast = zend_ast_get_class_name_ast(ast->child[0]);
 	zend_ast *args_ast = ast->child[1];
 
 	znode class_node, ctor_result;
@@ -3916,11 +3916,11 @@ void zend_compile_new(znode *result, zend_ast *ast) /* {{{ */
 		opline->extended_value = get_next_op_number(CG(active_op_array));
 
 	} else if (class_ast->kind == ZEND_AST_TYPE_REF) {
-		if (zend_ast_get_type_ref(class_ast)->type_args) {
-			zend_compile_type_arguments(zend_ast_get_type_ref(class_ast)->type_args);
+		if (class_ast->child[1]) {
+			zend_compile_type_arguments(class_ast->child[1]);
 		}
 
-		zend_compile_class_ref(&class_node, zend_ast_get_type_ref(class_ast)->type_name, ZEND_FETCH_CLASS_EXCEPTION);
+		zend_compile_class_ref_ex(&class_node, class_ast->child[0], ZEND_FETCH_CLASS_EXCEPTION);
 
 	} else {
 		zend_compile_class_ref_ex(&class_node, class_ast, ZEND_FETCH_CLASS_EXCEPTION);
@@ -4778,7 +4778,7 @@ void zend_compile_try(zend_ast *ast) /* {{{ */
 
 		for (j = 0; j < classes->children; j++) {
 
-			zend_ast *class_ast = classes->child[j];
+			zend_ast *class_ast = zend_ast_get_class_name_ast(classes->child[j]);
 			zend_bool is_last_class = (j + 1 == classes->children);
 
 			if (!zend_is_const_default_class_ref(class_ast)) {
@@ -5738,7 +5738,7 @@ void zend_compile_class_const_decl(zend_ast *ast) /* {{{ */
 
 static zend_trait_method_reference *zend_compile_method_ref(zend_ast *ast) /* {{{ */
 {
-	zend_ast *class_ast = ast->child[0];
+	zend_ast *class_ast = zend_ast_get_class_name_ast(ast->child[0]);
 	zend_ast *method_ast = ast->child[1];
 
 	zend_trait_method_reference *method_ref = emalloc(sizeof(zend_trait_method_reference));
@@ -5882,7 +5882,7 @@ void zend_compile_implements(znode *class_node, zend_ast *ast) /* {{{ */
 	zend_ast_list *list = zend_ast_get_list(ast);
 	uint32_t i;
 	for (i = 0; i < list->children; ++i) {
-		zend_ast *class_ast = list->child[i];
+		zend_ast *class_ast = zend_ast_get_class_name_ast(list->child[i]);
 		zend_string *name = zend_ast_get_str(class_ast);
 
 		zend_op *opline;
@@ -7060,7 +7060,7 @@ void zend_compile_yield_from(znode *result, zend_ast *ast) /* {{{ */
 void zend_compile_instanceof(znode *result, zend_ast *ast) /* {{{ */
 {
 	zend_ast *obj_ast = ast->child[0];
-	zend_ast *class_ast = ast->child[1];
+	zend_ast *class_ast = zend_ast_get_class_name_ast(ast->child[1]);
 
 	znode obj_node, class_node;
 	zend_op *opline;
@@ -7323,7 +7323,7 @@ void zend_compile_const(znode *result, zend_ast *ast) /* {{{ */
 
 void zend_compile_class_const(znode *result, zend_ast *ast) /* {{{ */
 {
-	zend_ast *class_ast = ast->child[0];
+	zend_ast *class_ast = zend_ast_get_class_name_ast(ast->child[0]);
 	zend_ast *const_ast = ast->child[1];
 
 	znode class_node, const_node;
@@ -7573,7 +7573,7 @@ zend_bool zend_is_allowed_in_const_expr(zend_ast_kind kind) /* {{{ */
 void zend_compile_const_expr_class_const(zend_ast **ast_ptr) /* {{{ */
 {
 	zend_ast *ast = *ast_ptr;
-	zend_ast *class_ast = ast->child[0];
+	zend_ast *class_ast = zend_ast_get_class_name_ast(ast->child[0]);
 	zend_ast *const_ast = ast->child[1];
 	zend_string *class_name;
 	zend_string *const_name = zend_ast_get_str(const_ast);
@@ -8261,7 +8261,7 @@ void zend_eval_const_expr(zend_ast **ast_ptr) /* {{{ */
 		}
 		case ZEND_AST_CLASS_CONST:
 		{
-			zend_ast *class_ast = ast->child[0];
+			zend_ast *class_ast = zend_ast_get_class_name_ast(ast->child[0]);
 			zend_ast *name_ast = ast->child[1];
 			zend_string *resolved_name;
 

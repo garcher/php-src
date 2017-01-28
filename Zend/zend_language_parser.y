@@ -674,12 +674,11 @@ type_argument_list:
 
 non_empty_type_argument_list:
 		type_argument { $$ = zend_ast_create_list(1, ZEND_AST_TYPE_ARG_LIST, $1); }
-	|	non_empty_type_argument_list ',' type_argument
-			{ $$ = zend_ast_list_add($1, $3); }
+	|	non_empty_type_argument_list ',' type_argument { $$ = zend_ast_list_add($1, $3); }
 ;
 
 type_argument:
-		name type_argument_list { $$ = zend_ast_create_type_ref($1, $2, 0); }
+		name type_argument_list { $$ = zend_ast_create(ZEND_AST_TYPE_REF, $1, $2); }
 ;
 
 type_parameter_list:
@@ -689,8 +688,7 @@ type_parameter_list:
 
 non_empty_type_parameter_list:
 		type_parameter { $$ = zend_ast_create_list(1, ZEND_AST_TYPE_PARAM_LIST, $1); }
-	|	non_empty_type_parameter_list ',' type_parameter
-			{ $$ = zend_ast_list_add($1, $3); }
+	|	non_empty_type_parameter_list ',' type_parameter { $$ = zend_ast_list_add($1, $3); }
 ;
 
 type_parameter:
@@ -1066,7 +1064,7 @@ class_name:
 		T_STATIC
 			{ zval zv; ZVAL_INTERNED_STR(&zv, CG(known_strings)[ZEND_STR_STATIC]);
 			  $$ = zend_ast_create_zval_ex(&zv, ZEND_NAME_NOT_FQ); }
-	|	name type_argument_list { $$ = zend_ast_create_type_ref($1, $2, 0); }
+	|	name type_argument_list { $$ = zend_ast_create(ZEND_AST_TYPE_REF, $1, $2); }
 ;
 
 class_name_reference:
