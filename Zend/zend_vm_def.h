@@ -6931,6 +6931,25 @@ ZEND_VM_HANDLER(0, ZEND_NOP, ANY, ANY)
 	ZEND_VM_NEXT_OPCODE();
 }
 
+ZEND_VM_HANDLER(187, ZEND_ADD_TYPE_PARAM, ANY, CONST)
+{
+	USE_OPLINE
+	zend_class_entry *ce = Z_CE_P(EX_VAR(opline->op1.var));
+
+	SAVE_OPLINE();
+	zend_string *type_parameter_name = Z_STR_P(EX_CONSTANT(opline->op2));
+
+	for (uint32_t i = 0; i < ce->num_type_parameters; i++) {
+        if (UNEXPECTED(zend_string_equals(ce->type_parameters[i]->name, type_parameter_name))) {
+            zend_error_noreturn(E_ERROR, "Cannot redeclare type parameter %s", ZSTR_VAL(type_parameter_name));
+        }
+    }
+
+	zend_add_type_parameter(ce, type_parameter_name);
+
+	ZEND_VM_NEXT_OPCODE_CHECK_EXCEPTION();
+}
+
 ZEND_VM_HANDLER(144, ZEND_ADD_INTERFACE, ANY, CONST)
 {
 	USE_OPLINE

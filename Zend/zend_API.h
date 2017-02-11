@@ -227,6 +227,8 @@ typedef struct _zend_fcall_info_cache {
 		class_container.num_traits = 0;							\
 		class_container.trait_aliases = NULL;					\
 		class_container.trait_precedences = NULL;				\
+		class_container.num_type_parameters = 0;				\
+		class_container.type_parameters = NULL;					\
 		class_container.interfaces = NULL;						\
 		class_container.get_iterator = NULL;					\
 		class_container.iterator_funcs.funcs = NULL;			\

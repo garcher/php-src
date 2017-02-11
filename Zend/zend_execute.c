@@ -3079,6 +3079,13 @@ ZEND_API int ZEND_FASTCALL zend_check_arg_type(zend_function *zf, uint32_t arg_n
 	return zend_verify_arg_type(zf, arg_num, arg, default_value, cache_slot);
 }
 
+ZEND_API void zend_add_type_parameter(zend_class_entry *ce, zend_string *parameter_name)
+{
+    zend_type_parameter_info* type_parameter_info = (zend_type_parameter_info *)emalloc(sizeof(zend_type_parameter_info));
+    type_parameter_info->name = parameter_name;
+    ce->type_parameters[ce->num_type_parameters++] = type_parameter_info;
+}
+
 /*
  * Local variables:
  * tab-width: 4
