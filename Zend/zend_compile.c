@@ -3916,17 +3916,13 @@ void zend_compile_new(znode *result, zend_ast *ast) /* {{{ */
 		class_node.op_type = opline->result_type;
 		class_node.u.op.var = opline->result.var;
 		opline->extended_value = get_next_op_number(CG(active_op_array));
-
-	} else if (class_ast->kind == ZEND_AST_TYPE_REF) {
-		if (class_ast->child[1]) {
-			zend_compile_type_arguments(class_ast->child[1]);
-		}
-
-		zend_compile_class_ref_ex(&class_node, class_ast->child[0], ZEND_FETCH_CLASS_EXCEPTION);
-
 	} else {
 		zend_compile_class_ref_ex(&class_node, class_ast, ZEND_FETCH_CLASS_EXCEPTION);
 	}
+
+    if (class_ast->child[1]) {
+        zend_compile_type_arguments(class_ast->child[1]);
+    }
 
 	opnum = get_next_op_number(CG(active_op_array));
 	opline = zend_emit_op(result, ZEND_NEW, NULL, NULL);

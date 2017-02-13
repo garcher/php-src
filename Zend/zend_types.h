@@ -332,10 +332,25 @@ typedef struct _HashTableIterator {
 	HashPosition  pos;
 } HashTableIterator;
 
+typedef struct _zend_type_parameter_info {
+	zend_string *name;
+} zend_type_parameter_info;
+
+typedef struct _zend_type_argument_info {
+	zend_type type;
+	struct _zend_type_argument_info **type_arguments;
+	uint32_t num_children;
+	uint32_t position;
+} zend_type_argument_info;
+
 struct _zend_object {
 	zend_refcounted_h gc;
 	uint32_t          handle; // TODO: may be removed ???
 	zend_class_entry *ce;
+
+	uint32_t num_type_arguments;
+	zend_type_argument_info **type_arguments;
+
 	const zend_object_handlers *handlers;
 	HashTable        *properties;
 	zval              properties_table[1];
