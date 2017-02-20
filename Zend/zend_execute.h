@@ -49,6 +49,7 @@ ZEND_API int zend_eval_stringl(char *str, size_t str_len, zval *retval_ptr, char
 ZEND_API int zend_eval_string_ex(char *str, zval *retval_ptr, char *string_name, int handle_exceptions);
 ZEND_API int zend_eval_stringl_ex(char *str, size_t str_len, zval *retval_ptr, char *string_name, int handle_exceptions);
 ZEND_API void zend_add_type_parameter(zend_class_entry *ce, zend_string *parameter_name);
+ZEND_API zend_type_argument_info **zend_init_type_arguments(zend_ulong num_type_arguments);
 
 /* export zend_pass_function to allow comparisons against it */
 extern ZEND_API const zend_internal_function zend_pass_function;

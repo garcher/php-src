@@ -6950,6 +6950,18 @@ ZEND_VM_HANDLER(187, ZEND_ADD_TYPE_PARAM, ANY, CONST)
 	ZEND_VM_NEXT_OPCODE_CHECK_EXCEPTION();
 }
 
+ZEND_VM_HANDLER(188, ZEND_INIT_TYPE_ARGS, ANY, ANY)
+{
+	USE_OPLINE
+
+	SAVE_OPLINE();
+
+	zend_ulong num_type_arguments = Z_LVAL_P(EX_CONSTANT(opline->op1));
+	EG(current_type_arguments) = zend_init_type_arguments(num_type_arguments);
+
+	ZEND_VM_NEXT_OPCODE_CHECK_EXCEPTION();
+}
+
 ZEND_VM_HANDLER(144, ZEND_ADD_INTERFACE, ANY, CONST)
 {
 	USE_OPLINE

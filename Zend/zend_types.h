@@ -347,13 +347,11 @@ struct _zend_object {
 	zend_refcounted_h gc;
 	uint32_t          handle; // TODO: may be removed ???
 	zend_class_entry *ce;
-
-	uint32_t num_type_arguments;
-	zend_type_argument_info **type_arguments;
-
 	const zend_object_handlers *handlers;
 	HashTable        *properties;
 	zval              properties_table[1];
+    uint32_t num_type_arguments;
+    zend_type_argument_info **type_arguments;
 };
 
 struct _zend_resource {

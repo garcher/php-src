@@ -253,7 +253,8 @@ END_EXTERN_C()
 #define ZEND_FETCH_THIS                      184
 #define ZEND_ISSET_ISEMPTY_THIS              186
 #define ZEND_ADD_TYPE_PARAM                  187
+#define ZEND_INIT_TYPE_ARGS                  188
 
-#define ZEND_VM_LAST_OPCODE                  187
+#define ZEND_VM_LAST_OPCODE                  188
 
 #endif

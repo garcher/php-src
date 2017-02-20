@@ -3086,6 +3086,12 @@ ZEND_API void zend_add_type_parameter(zend_class_entry *ce, zend_string *paramet
     ce->type_parameters[ce->num_type_parameters++] = type_parameter_info;
 }
 
+ZEND_API zend_type_argument_info **zend_init_type_arguments(zend_ulong num_type_arguments)
+{
+    zend_type_argument_info **arguments_list = emalloc(num_type_arguments * sizeof(zend_type_argument_info*));
+    return arguments_list;
+}
+
 /*
  * Local variables:
  * tab-width: 4
